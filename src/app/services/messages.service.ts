@@ -64,7 +64,7 @@ function getCredentials(): Credentials {
 
 async function request(
   credentials: Credentials,
-  method: 'getChats' | 'getChatHistory' | 'lastIncomingMessages' | 'lastOutgoingMessages' | 'sendMessage',
+  method: 'checkAccount' | 'getChatHistory' | 'lastIncomingMessages' | 'lastOutgoingMessages' | 'sendMessage',
   signal: AbortSignal,
   body?: Record<string, unknown>,
   query?: Record<string, string>,
@@ -132,20 +132,16 @@ async function resolveChatId(credentials: Credentials, phoneNumber: string, sign
     // Keep the in-memory session cache available if browser storage is blocked.
   }
 
-  const data = await request(credentials, 'getChats', signal);
-  if (!Array.isArray(data)) throw new Error('GREEN-API вернул некорректный список чатов.');
+  const data = await request(credentials, 'checkAccount', signal, { phoneNumber: Number(phone) });
+  if (!isRecord(data) || typeof data.exist !== 'boolean') {
+    throw new Error('GREEN-API не смог проверить аккаунт. Проверьте авторизацию инстанса и повторите позже.');
+  }
+  if (!data.exist) throw new Error('Для этого номера не найден аккаунт MAX.');
+  if (typeof data.chatId !== 'string' || !/^-?\d+$/.test(data.chatId)) {
+    throw new Error('GREEN-API вернул некорректный идентификатор чата.');
+  }
 
-  const chat = data.find(
-    (item: unknown) =>
-      isRecord(item) &&
-      typeof item.chatId === 'string' &&
-      /^-?\d+$/.test(item.chatId) &&
-      (typeof item.phoneNumber === 'string' || typeof item.phoneNumber === 'number') &&
-      normalizePhoneNumber(item.phoneNumber) === phone,
-  ) as Record<string, unknown> | undefined;
-
-  if (!chat) throw new Error('Чат с этим номером не найден в GREEN-API.');
-  const chatId = chat.chatId as string;
+  const chatId = data.chatId;
   signal.throwIfAborted();
   chatIds.set(key, chatId);
   try {

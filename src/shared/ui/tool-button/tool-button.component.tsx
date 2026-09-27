@@ -1,5 +1,5 @@
 import { Container, IconButton, Typography, type IconButtonProps } from '@maxhub/max-ui';
-import { useId } from 'react';
+import { useId, type CSSProperties } from 'react';
 
 import '@maxhub/max-ui/styles.css';
 import './tool-button.style.css';
@@ -11,7 +11,13 @@ export interface ToolButtonProps extends Omit<IconButtonProps, 'children' | 'var
 }
 
 function ToolButtonIcon({ src }: { src: string }) {
-  return <img className="tool-button__icon" aria-hidden="true" src={src} />;
+  return (
+    <span
+      className="tool-button__icon"
+      aria-hidden="true"
+      style={{ '--tool-button-icon': `url("${src}")` } as CSSProperties}
+    />
+  );
 }
 
 export function ToolButton({ icon, children, selected = false, className, ...props }: ToolButtonProps) {
