@@ -1,0 +1,30 @@
+.copy-button {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 8px;
+}
+
+.copy-button__icon {
+  display: block;
+  width: 16px;
+  height: 16px;
+  background-color: currentColor;
+  -webkit-mask: url('/assets/icons/copy.svg') center / contain no-repeat;
+  mask: url('/assets/icons/copy.svg') center / contain no-repeat;
+}
+
+.copy-button__icon--copied {
+  -webkit-mask-image: url('/assets/icons/check.svg');
+  mask-image: url('/assets/icons/check.svg');
+}
+
+.copy-button__status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

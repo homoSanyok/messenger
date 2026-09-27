@@ -1,0 +1,66 @@
+.settings {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: calc(40vw - 48px);
+  background: var(--background-primary);
+  border-right: 1px solid var(--divider-secondary);
+}
+
+.settings__header {
+  flex-shrink: 0;
+  padding: 24px 16px 16px;
+}
+
+.settings__divider {
+  margin: 4px 16px;
+  border-bottom: 1px solid var(--divider-secondary);
+}
+
+.settings__items {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  padding: 0 16px;
+}
+
+.settings__action {
+  color: var(--text-primary);
+}
+
+.settings__item {
+  background-image: none !important;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: none;
+  animation: none;
+  border-radius: 12px;
+}
+
+.settings__item > [class*='Tappable__ripple__'] {
+  display: none;
+}
+
+.settings__item:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: -2px;
+}
+
+.settings__item:not(.settings__item--selected):not(.settings__item--pressed):hover {
+  background-color: var(--states-background-pressed-transparent);
+}
+
+.settings__item.settings__item--selected:not(.settings__item--pressed) {
+  background-color: #007aff14;
+}
+
+.settings[data-color-scheme='dark'] .settings__item.settings__item--selected:not(.settings__item--pressed) {
+  background-color: #2c2d37;
+}
+
+.settings__item.settings__item--pressed {
+  background-color: var(--states-background-hovered-transparent);
+}

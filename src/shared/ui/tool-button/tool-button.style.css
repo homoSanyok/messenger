@@ -1,0 +1,46 @@
+.tool-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  color: var(--text-secondary, #707579);
+}
+
+.tool-button .tool-button__button {
+  color: inherit;
+  background: transparent;
+  --MaxUi-IconButton_background-active: transparent;
+  --MaxUi-IconButton_foreground-active: currentColor;
+}
+
+.tool-button__icon {
+  display: block;
+  width: 24px;
+  height: 24px;
+  background-color: currentColor;
+  -webkit-mask: var(--tool-button-icon) center / contain no-repeat;
+  mask: var(--tool-button-icon) center / contain no-repeat;
+}
+
+.tool-button .tool-button__label {
+  font-size: 11px;
+  line-height: 14px;
+  text-align: center;
+  user-select: none;
+}
+
+@media (hover: hover) {
+  .tool-button:has(.tool-button__button:enabled:hover) {
+    color: var(--text-themed, #0080ff);
+  }
+}
+
+.tool-button--selected,
+.tool-button:has(.tool-button__button:focus-visible),
+.tool-button:has(.tool-button__button:enabled:active) {
+  color: var(--text-themed, #0080ff);
+}
+
+.tool-button:has(.tool-button__button:disabled) {
+  color: var(--states-text-primary-disabled, #a9a9a9);
+}

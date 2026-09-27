@@ -1,0 +1,97 @@
+name: deploy-demo
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  # ============ BUILD ============
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      build_exists: ${{ steps.check-build.outputs.exists }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+
+      - name: Check build folder exists
+        id: check-build
+        run: |
+          if [ -d "./dist" ] && [ "$(ls -A ./dist)" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "✅ Build folder exists and is not empty"
+            ls -la ./dist
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "❌ Build folder is missing or empty"
+            exit 1
+          fi
+
+      - name: Upload build artifact
+        if: steps.check-build.outputs.exists == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: "./dist"
+          retention-days: 1
+
+  # ============ DEPLOY ============
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: needs.build.outputs.build_exists == 'true'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          path: "./dist"
+
+      - name: Verify downloaded artifact
+        run: |
+          if [ -d "./dist" ] && [ "$(ls -A ./dist)" ]; then
+            echo "✅ Artifact downloaded successfully"
+            ls -la ./dist
+          else
+            echo "❌ Downloaded artifact is empty or missing"
+            exit 1
+          fi
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact for Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "./dist"
+          name: "github-pages"
+          if-no-files-found: error
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

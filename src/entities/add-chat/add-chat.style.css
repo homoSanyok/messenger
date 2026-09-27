@@ -1,0 +1,48 @@
+.add-chat__dialog {
+  box-sizing: border-box;
+  width: 420px;
+  max-width: none;
+  max-height: calc(100dvh - 32px);
+  margin: auto;
+  padding: 24px !important;
+  overflow-y: auto;
+  color: inherit;
+  background: var(--background-primary);
+  border: 0;
+  border-radius: 32px;
+  box-shadow: 0 16px 64px rgb(0 0 0 / 20%);
+}
+
+.add-chat__dialog:not([open]) {
+  display: none;
+}
+
+.add-chat__dialog::backdrop {
+  background: rgb(0 0 0 / 40%);
+}
+
+.add-chat__form,
+.add-chat__field {
+  display: flex;
+  flex-direction: column;
+}
+
+.add-chat__form {
+  gap: 24px;
+}
+
+.add-chat__field {
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.add-chat__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.add-chat__error {
+  color: var(--text-negative, #d32f2f);
+}

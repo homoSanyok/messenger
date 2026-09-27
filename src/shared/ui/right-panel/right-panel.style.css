@@ -1,0 +1,37 @@
+.right-panel {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-self: stretch;
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 0;
+  background: var(--background-surface);
+}
+
+.right-panel__header {
+  flex-shrink: 0;
+  padding: 24px;
+  text-align: center;
+  background: var(--background-primary);
+}
+
+.right-panel__divider {
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--divider-secondary);
+}
+
+.right-panel__content {
+  flex: 1;
+  min-height: 0;
+  box-sizing: border-box;
+  padding: 24px;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+}
+
+.right-panel__card {
+  background: var(--background-card);
+  border-radius: 20px;
+  overflow: hidden;
+}
