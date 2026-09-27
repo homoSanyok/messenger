@@ -29,6 +29,11 @@
   margin: 0;
 }
 
+.chats-list__error {
+  padding: 8px 16px;
+  overflow-wrap: anywhere;
+}
+
 .chats-list__items {
   min-height: 0;
   overflow-y: auto;

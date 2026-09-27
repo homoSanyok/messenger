@@ -1,5 +1,7 @@
 import { Container, MaxUI } from '@maxhub/max-ui';
+import { useEffect } from 'react';
 import { useLoginStore } from './app/services/login.service';
+import { useMessagesStore } from './app/services/messages.service';
 import { useNavigationStore } from './app/services/navigation.service';
 import { useThemeStore } from './app/services/theme.service';
 import { ChatsList } from './widgets/chats-list/chats-list.component';
@@ -14,7 +16,14 @@ function App() {
   const selected = useNavigationStore((state) => state.selected);
   const settingsPage = useNavigationStore((state) => state.settingsPage);
   const theme = useThemeStore((state) => state.theme);
-  const isLoggedIn = useLoginStore((state) => Boolean(state.idInstance && state.apiTokenInstance));
+  const idInstance = useLoginStore((state) => state.idInstance);
+  const apiTokenInstance = useLoginStore((state) => state.apiTokenInstance);
+  const isLoggedIn = Boolean(idInstance && apiTokenInstance);
+  const startNotifications = useMessagesStore((state) => state.startNotifications);
+
+  useEffect(() => {
+    if (idInstance && apiTokenInstance) return startNotifications();
+  }, [idInstance, apiTokenInstance, startNotifications]);
 
   return (
     <MaxUI colorScheme={theme}>

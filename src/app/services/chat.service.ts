@@ -3,6 +3,7 @@ import { useLoginStore } from './login.service'
 
 export interface Chat {
   id: string
+  apiChatId?: string
   phoneNumber: string
   title: string
   lastMessage: string
@@ -18,6 +19,8 @@ interface ChatState {
   createChat: (input: CreateChatInput) => Chat
   selectChat: (chat: Chat | null) => void
   setLastMessage: (chatId: string, lastMessage: string) => void
+  upsertNotificationChat: (apiChatId: string, phoneNumber: string, title: string) => Chat
+  setApiChatId: (chatId: string, apiChatId: string) => void
 }
 
 const STORAGE_KEY = 'messenger.chats'
@@ -44,7 +47,9 @@ function readChats(idInstance: string | null): Chat[] {
       typeof chat === 'object' && chat !== null &&
       typeof chat.id === 'string' &&
       typeof chat.phoneNumber === 'string' &&
-      /^\+[1-9]\d{6,14}$/.test(chat.phoneNumber) &&
+      (/^\+[1-9]\d{6,14}$/.test(chat.phoneNumber) ||
+        (chat.phoneNumber === '' && typeof chat.apiChatId === 'string' && /^-?\d+$/.test(chat.apiChatId))) &&
+      (chat.apiChatId === undefined || (typeof chat.apiChatId === 'string' && /^-?\d+$/.test(chat.apiChatId))) &&
       typeof chat.title === 'string' &&
       typeof chat.lastMessage === 'string'
     ))
@@ -89,6 +94,31 @@ export const useChatStore = create<ChatState>((set, get) => ({
     return chat
   },
   selectChat: (chat) => set({ selectedChat: chat }),
+  upsertNotificationChat: (apiChatId, phoneNumber, title) => {
+    const { idInstance } = useLoginStore.getState()
+    if (!idInstance) throw new Error('Войдите в аккаунт, чтобы получить сообщения.')
+    const current = get().chats.find((chat) => chat.apiChatId === apiChatId) ??
+      get().chats.find((chat) => phoneNumber && chat.phoneNumber === phoneNumber)
+    const chat: Chat = current
+      ? { ...current, apiChatId, phoneNumber: current.phoneNumber || phoneNumber, title: title || current.title }
+      : { id: `api:${apiChatId}`, apiChatId, phoneNumber, title: title || phoneNumber || apiChatId, lastMessage: '' }
+    const chats = current ? get().chats.map((item) => item.id === current.id ? chat : item) : [chat, ...get().chats]
+    // Persist the chat before acknowledging its first notification.
+    sessionStorage.setItem(`${STORAGE_KEY}.${idInstance}`, JSON.stringify(chats))
+    set({ chats, selectedChat: get().selectedChat?.id === chat.id ? chat : get().selectedChat })
+    return chat
+  },
+  setApiChatId: (chatId, apiChatId) => {
+    const { idInstance } = useLoginStore.getState()
+    if (!idInstance) return
+    const chats = get().chats.map((chat) => chat.id === chatId ? { ...chat, apiChatId } : chat)
+    try {
+      sessionStorage.setItem(`${STORAGE_KEY}.${idInstance}`, JSON.stringify(chats))
+    } catch {
+      // The association remains available in memory.
+    }
+    set({ chats, selectedChat: chats.find((chat) => chat.id === get().selectedChat?.id) ?? null })
+  },
   setLastMessage: (chatId, lastMessage) => {
     const { idInstance } = useLoginStore.getState()
     const current = get().chats.find((chat) => chat.id === chatId)

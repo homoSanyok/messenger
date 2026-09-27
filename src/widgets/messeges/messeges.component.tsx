@@ -17,13 +17,13 @@ export function Messages({ chat }: { chat: Chat }) {
   const apiTokenInstance = useLoginStore((state) => state.apiTokenInstance);
   const selectChat = useChatStore((state) => state.selectChat);
   const history = useMessagesStore((state) => state.byChat[chat.id]);
-  const startSynchronization = useMessagesStore((state) => state.startSynchronization);
+  const loadHistory = useMessagesStore((state) => state.loadHistory);
   const sendMessage = useMessagesStore((state) => state.sendMessage);
   const syncing = !history || history.status === 'syncing';
 
   useLayoutEffect(
-    () => startSynchronization(chat.id),
-    [chat.id, idInstance, apiTokenInstance, retry, startSynchronization],
+    () => loadHistory(chat.id),
+    [chat.id, idInstance, apiTokenInstance, retry, loadHistory],
   );
 
   useEffect(() => {
@@ -51,7 +51,7 @@ export function Messages({ chat }: { chat: Chat }) {
           </IconButton>
           <Avatar.Container size={32}>
             <Avatar.Text>
-              <Typography.Label>{chat.phoneNumber.slice(-2)}</Typography.Label>
+              <Typography.Label>{chat.phoneNumber ? chat.phoneNumber.slice(-2) : chat.title.slice(0, 2)}</Typography.Label>
             </Avatar.Text>
           </Avatar.Container>
           <Typography.Action id={titleId} className="messages__title">
@@ -86,9 +86,6 @@ export function Messages({ chat }: { chat: Chat }) {
           </div>
         )}
       </div>
-      {history?.status === 'ready' && history.error && (
-        <Typography.Label role="status">{history.error} Повторяем подключение…</Typography.Label>
-      )}
       <SendMessage
         disabled={syncing || history?.status !== 'ready'}
         sending={history?.sending ?? false}

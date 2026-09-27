@@ -2,6 +2,7 @@ import { Avatar, CellList, CellSimple, Container, Typography, useColorScheme } f
 import { useId, useState } from 'react';
 
 import { useChatStore } from '../../app/services/chat.service';
+import { useMessagesStore } from '../../app/services/messages.service';
 import { AddChat } from '../../entities/add-chat/add-chat.component';
 import { Messages } from '../messeges/messeges.component';
 import './chats-list.style.css';
@@ -9,6 +10,7 @@ import './chats-list.style.css';
 export function ChatsList() {
   const colorScheme = useColorScheme();
   const chats = useChatStore((state) => state.chats);
+  const notificationError = useMessagesStore((state) => state.notificationError);
   const [pressedChatId, setPressedChatId] = useState<(typeof chats)[number]['id'] | null>(null);
   const selectedChat = useChatStore((state) => state.selectedChat);
   const selectChat = useChatStore((state) => state.selectChat);
@@ -30,6 +32,12 @@ export function ChatsList() {
 
         <Container className="chats-list__divider" aria-hidden="true" />
 
+        {notificationError && (
+          <Typography.Label className="chats-list__error" role="status">
+            {notificationError} Повторяем подключение…
+          </Typography.Label>
+        )}
+
         <CellList className="chats-list__items" mode="full-width" role="list">
           {chats.map((chat) => (
             <Container key={chat.id} fullWidth role="listitem">
@@ -45,7 +53,7 @@ export function ChatsList() {
                 before={
                   <Avatar.Container size={56}>
                     <Avatar.Text>
-                      <Typography.Body>{chat.phoneNumber.slice(-2)}</Typography.Body>
+                      <Typography.Body>{chat.phoneNumber ? chat.phoneNumber.slice(-2) : chat.title.slice(0, 2)}</Typography.Body>
                     </Avatar.Text>
                   </Avatar.Container>
                 }
