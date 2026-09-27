@@ -1,5 +1,5 @@
 import { Container, IconButton, Typography, type IconButtonProps } from '@maxhub/max-ui';
-import { useId, type CSSProperties } from 'react';
+import { useId } from 'react';
 
 import '@maxhub/max-ui/styles.css';
 import './tool-button.style.css';
